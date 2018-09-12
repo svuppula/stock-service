@@ -1,11 +1,7 @@
 spring:
   application:
     name: stock-service
-    
-server:
-  port: 8301
-     
-
+  
 eureka:
   client:
     registerWithEureka: true
@@ -14,4 +10,6 @@ eureka:
       defaultZone: http://localhost:8302/eureka/   
   instance:
       hostname: localhost
+    
+      
     

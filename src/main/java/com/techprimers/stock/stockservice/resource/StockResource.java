@@ -1,6 +1,7 @@
 package com.techprimers.stock.stockservice.resource;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,10 +26,13 @@ public class StockResource {
 	RestTemplate restTemplate;
 	
 	@GetMapping("/{username}")
-	public List<Stock> getStockQuote(@PathVariable("username") final String userName) {
-	ResponseEntity<List<String>> quoteResponse = restTemplate.exchange("http://localhost:8300/rest/db/" + userName, HttpMethod.GET, null, new ParameterizedTypeReference<List<String>>() {});
+	public List<Quote> getStockQuote(@PathVariable("username") final String userName) {
+	ResponseEntity<List<String>> quoteResponse = restTemplate.exchange("http://db-service/rest/db/" + userName, HttpMethod.GET, null, new ParameterizedTypeReference<List<String>>() {});
 	List<String> quotes =quoteResponse.getBody();
-	return quotes.stream().map(this::getStockPrice).collect(Collectors.toList());
+	return quotes.stream().map(quote -> {
+		Stock stock = getStockPrice(quote);
+		return new Quote(quote, stock.getQuote().getPrice());
+	}).collect(Collectors.toList());
 	}
 	
 	public Stock getStockPrice(String quote) {
@@ -40,4 +44,25 @@ public class StockResource {
 		}
 	}
 
+	private class Quote {
+		private String quote;
+		public String getQuote() {
+			return quote;
+		}
+		public void setQuote(String quote) {
+			this.quote = quote;
+		}
+		public BigDecimal getPrice() {
+			return price;
+		}
+		public void setPrice(BigDecimal price) {
+			this.price = price;
+		}
+		private BigDecimal price;
+	public Quote(String quote, BigDecimal price) {
+		this.quote =quote;
+		this.price = price;
+		
+	}
+	}
 }
